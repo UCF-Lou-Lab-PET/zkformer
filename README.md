@@ -27,3 +27,5 @@ To test the CRPC and PSQ in zkFormer, please run tests for ```libsnark/zk_proof_
     make && make check
 
 To check the runtime, memory usage and breakdown, check the log files in ```build/Testing/Temporary/LastTest.log```.
+
+To test matrix multiplication with different dimensions. Please edit the ``row``, ``com`` and ``col`` in the ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```
