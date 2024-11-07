@@ -31,7 +31,11 @@ To check the runtime, memory usage and breakdown, check the log files in ```buil
 ## Reproducing the results
 
 ### Microbenchmark for matrix multiplication
-The experiments consist of matrix multiplication of different sizes. Specifically, we test the matrix multiplication of $[dim_{out},dim_{in}] \times [dim_{in}, tokens\_num] $. To test the matrix multiplication, under ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```, specify the shape the matrix and then run ```make && make check```. The arguments $(row, com, col)$ should be set as $(64,48,49)$, $(128,64,49)$, $(320,128,49)$ and $(512,320,49)$ respctively.
+The experiments consist of matrix multiplication of different sizes. Specifically, we test the matrix multiplication of $[dim_{out},dim_{in}] \times [dim_{in}, tokens\_num] $. To test the matrix multiplication, under ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```, specify the shape the matrix and then run ```make && make check```. The arguments $(row, com, col)$ should be set as $(64,48,49)$, $(128,64,49)$, $(320,128,49)$ and $(512,320,49)$ respctively. Functions involved:
+
+* test_r1cs_gg_ppzksnark( ) in ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```.
+* generate_r1cs_example_with_matrix( ) in ```libsnark/relations/constraint_satisfaction_problems/r1cs/examples/r1cs_examples.tcc``` to generate a R1CS example with witness.
+* The optimization is mudulizaed as a ```matrix_gadget``` class in ```libsnark/gadgetlib3/matrix_gadget.hpp``` as well. One can build R1CS instance from the gadgets, as shown in ```libsnark/models/r1cs_examples/generate_from_model.hpp```.
 
 ![Table 2 in usenix submission](./figure/table2.jpg "MMbench1")
 
