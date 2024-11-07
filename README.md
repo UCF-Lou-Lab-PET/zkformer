@@ -28,4 +28,21 @@ To test the CRPC and PSQ in zkFormer, please run tests for ```libsnark/zk_proof_
 
 To check the runtime, memory usage and breakdown, check the log files in ```build/Testing/Temporary/LastTest.log```.
 
-To test matrix multiplication with different dimensions. Please edit the ``row``, ``com`` and ``col`` in the ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```
+## Reproducing the results
+
+### Microbenchmark for matrix multiplication
+The experiments consist of matrix multiplication of different sizes. Specifically, we test the matrix multiplication of $[dim_{out},dim_{in}] \times [dim_{in}, tokens\_num] $. To test the matrix multiplication, under ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```, specify the shape the matrix and then run ```make && make check```. The arguments $(row, com, col)$ should be set as $(64,48,49)$, $(128,64,49)$, $(320,128,49)$ and $(512,320,49)$ respctively.
+
+![Table 2 in usenix submission](./figure/table2.jpg "MMbench1")
+
+![Figure 7 in ICML submission](./figure/figure7.jpg "MMbench2")
+
+### Test the effect of the proposed methods
+The experiments consist of running the matrix multiplication with $(row, com, col)$ set to $(128,64,49)$ on different cirsuits: (1) naive circuit; (2) CRPC circuit and (3) CRPC+PSQ circuit. The test these circuits, change the ```generate_r1cs_example_with_matrix()``` function in ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```. ```generate_r1cs_example_with_matrix()``` for the naive implementattion, ```generate_r1cs_example_with_matrix_opt``` for $+CRPC$ and ```generate_r1cs_example_with_matrix_opt_4``` for $+CRPC+PSQ$.
+![Table3 in ICML submission](./figure/table3.jpg "MMbench2")
+
+Check the ```build/Testing/Temporary/LastTest.log``` for a detailed runtime breakdown, key sizes as well as memory usage.
+
+### End-to-end runtime
+The end-to-end runtime is approximated. The component demo code is under ```libsnark/gadgetlib3```. The runtime is computed by runnning each matrix multiplication in the attention module and MLP layer individually.
+
