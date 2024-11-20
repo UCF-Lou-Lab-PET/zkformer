@@ -1,6 +1,6 @@
-# zkFormer: Verifiable and Private Transformer Inference
+# zkVC: Fast Zero-Knowledge Proof for Private and Verifiable Computing
 
-This is the code for zkFormer: Verifiable and Private Transformer Inference. This code is built upon [libsnark](https://github.com/scipr-lab/libsnark): a C++ library for zkSNARK proofs.
+This is the code for zkVC: Fast Zero-Knowledge Proof for Private and Verifiable Computing. This code is built upon [libsnark](https://github.com/scipr-lab/libsnark): a C++ library for zkSNARK proofs.
 
 ## Overview and installation
 
@@ -47,6 +47,6 @@ The experiments consist of running the matrix multiplication with $(row, com, co
 
 Check the ```build/Testing/Temporary/LastTest.log``` for a detailed runtime breakdown, key sizes as well as memory usage.
 
-### End-to-end runtime
-The end-to-end runtime is approximated. The component demo code is under ```libsnark/gadgetlib3```. The runtime is computed by runnning each matrix multiplication in the attention module and MLP layer individually.
+<!-- ### End-to-end runtime
+The end-to-end runtime is approximated. The component demo code is under ```libsnark/gadgetlib3```. The runtime is computed by runnning each matrix multiplication in the attention module and MLP layer individually. -->
 
