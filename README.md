@@ -22,7 +22,7 @@ We refer to [libsnark](https://github.com/scipr-lab/libsnark) for more details. 
 
 ## Testing
 
-To test the CRPC and PSQ in zkFormer, please run tests for ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```. To test a matrix multiplication (Figure 7 as well as Table 3), you can specify the shape of the matrix multiplication. Then,under the ```./build``` directory, you can build and run the test by:
+To test the CRPC and PSQ in zkFormer, please run tests for ```libsnark/zk_proof_systems/ppzksnark/r1cs_gg_ppzksnark/tests/test_r1cs_gg_ppzksnark_conv.cpp```. To test a matrix multiplication, you can specify the shape of the matrix multiplication. Then,under the ```./build``` directory, you can build and run the test by:
 
     make && make check
 
