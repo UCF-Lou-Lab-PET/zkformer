@@ -64,7 +64,11 @@ void test_r1cs_gg_ppzksnark(size_t i_h, size_t i_w, size_t k_h, size_t k_w)
     // r1cs_example<libff::Fr<ppT> > example = generate_r1cs_example_with_matrix_opt_3<libff::Fr<ppT> >(i_h,i_w,k_h,k_w);
 
     // with opt + prefix sum
-    r1cs_example<libff::Fr<ppT> > example = generate_r1cs_example_with_matrix_opt_4<libff::Fr<ppT> >(i_h,i_w,k_h,k_w);
+    // r1cs_example<libff::Fr<ppT> > example = generate_r1cs_example_with_matrix_opt_4<libff::Fr<ppT> >(i_h,i_w,k_h,k_w);
+
+    // with only prefix sum
+    r1cs_example<libff::Fr<ppT> > example = generate_r1cs_example_with_matrix_opt_5<libff::Fr<ppT> >(i_h,i_w,k_h,k_w);
+
 
     // for conv
     // r1cs_example<libff::Fr<ppT> > example = generate_r1cs_example_with_conv_2_opt<libff::Fr<ppT> >(i_h,i_w,k_h,k_w);
@@ -92,6 +96,9 @@ void test_r1cs_gg_ppzksnark(size_t n)
     // r1cs_example<libff::Fr<ppT> > example = gen_r1cs_example_from_protoboard<libff::Fr<ppT> >(n);
     r1cs_example<libff::Fr<ppT> > example = gen_r1cs_example_from_relu_vector<libff::Fr<ppT> >(n);
 
+    // with only prefix sum
+    // r1cs_example<libff::Fr<ppT> > example = gen_r1cs_example_from_relu_vector_opt_5<libff::Fr<ppT> >(n);
+
     const bool bit = run_r1cs_gg_ppzksnark<ppT>(example, test_serialization);
     assert(bit);
 
@@ -104,6 +111,7 @@ int main()
     libff::start_profiling();
     // row == output dimension, com == input dimension, col == #tokens
     size_t row=128, com=64, col=49;
+    // size_t row=2, com=3, col=2;
     test_r1cs_gg_ppzksnark<default_r1cs_gg_ppzksnark_pp>(row, com, com, col);
 }
 #else // NDEBUG

@@ -459,6 +459,7 @@ r1cs_example<FieldT> generate_r1cs_example_with_conv_2_opt(const size_t input_h,
     return r1cs_example<FieldT>(std::move(cs), std::move(primary_input), std::move(auxiliary_input));
 }
 
+// baseline method
 template<typename FieldT>
 r1cs_example<FieldT> generate_r1cs_example_with_matrix(const size_t matrix_1_h,
                                                         const size_t matrix_1_w,
@@ -560,6 +561,7 @@ FieldT qpow(FieldT a, size_t n)
     }
 }
 
+// the one with crpc only
 template<typename FieldT>
 r1cs_example<FieldT> generate_r1cs_example_with_matrix_opt(const size_t matrix_1_h,
                                                         const size_t matrix_1_w,
@@ -986,6 +988,114 @@ r1cs_example<FieldT> generate_r1cs_example_with_matrix_opt_4(const size_t matrix
 
     return r1cs_example<FieldT>(std::move(cs), std::move(primary_input), std::move(auxiliary_input));
 }
+
+// with prefix sum only
+template<typename FieldT>
+r1cs_example<FieldT> generate_r1cs_example_with_matrix_opt_5(const size_t matrix_1_h,
+                                                        const size_t matrix_1_w,
+				                                        const size_t matrix_2_h,
+                                                        const size_t matrix_2_w)
+{
+    libff::enter_block("Call to generate_r1cs_example_with_matrix");
+    r1cs_constraint_system<FieldT> cs;
+    // cs.primary_input_size = matrix_1_h*matrix_2_w;
+    // cs.auxiliary_input_size =  (matrix_1_h)*(matrix_1_w) + matrix_1_h*matrix_2_w*(matrix_1_w+1) + (matrix_2_w)*(matrix_2_h) - matrix_1_h*matrix_2_w;
+    cs.primary_input_size = 0; 
+    cs.auxiliary_input_size =  (matrix_1_h)*(matrix_1_w)  + (matrix_2_w)*(matrix_2_h) + matrix_1_h*matrix_2_w*(matrix_1_w);
+    
+    
+    size_t output_h = matrix_1_h;
+    size_t output_w = matrix_2_w;
+    size_t output_size = output_h * output_w;
+    size_t num_constraints = matrix_1_h*matrix_2_w*(matrix_1_w+1) - output_size;
+
+    libff::enter_block("set variables");
+    r1cs_variable_assignment<FieldT> full_variable_assignment;
+    // std::cout<<"input_x: ";
+    for(size_t i=0; i<(matrix_1_h)*(matrix_1_w); i++){
+        full_variable_assignment.push_back(i+1);
+        // std::cout<<i+1<<" ";
+    }
+    // std::cout<<std::endl;
+    // std::cout<<"weight_matrix: ";
+    for(size_t i=0; i<(matrix_2_w)*(matrix_2_h); i++){
+        full_variable_assignment.push_back(i+1);
+        // std::cout<<i+1<<" ";
+    }
+    // std::cout<<std::endl;
+    
+    libff::leave_block("set variables");
+
+    // std::cout<<"y_matrix: ";    
+    libff::enter_block("Compute y variables");
+    for(size_t y_i=0; y_i<output_h; y_i++){
+        for(size_t y_j=0; y_j<output_w; y_j++){
+            FieldT y = FieldT::zero();
+            for(size_t pos=0; pos<matrix_1_w; pos++){
+                FieldT temp_y = FieldT::zero();
+                temp_y = FieldT(y_i*matrix_1_w + pos + 1) * FieldT(pos*matrix_2_w + y_j + 1);
+                // full_variable_assignment.push_back(temp_y);
+                // y += temp_y;
+                y += temp_y;
+                // std::cout<<y_i*matrix_1_w + pos + 1<<" * "<<pos*matrix_2_w + y_j + 1<<" = "<< (y_i*matrix_1_w + pos + 1) * (pos*matrix_2_w + y_j + 1) <<std::endl;
+                full_variable_assignment.push_back(y);
+            }
+            // std::cout<<std::endl;
+            // full_variable_assignment.push_back(y);
+        }
+    }
+    std::cout<<std::endl;
+
+    libff::leave_block("Compute y variables");
+
+    libff::enter_block("set constraints");
+
+    for(size_t y_i=0; y_i<output_h; y_i++){
+        for(size_t y_j=0; y_j<output_w; y_j++){
+            FieldT temp_minus_one = FieldT(-1);
+            for(size_t pos=0; pos<matrix_1_w; pos++){
+                linear_combination<FieldT> A, B, C;
+                A.add_term((y_i*matrix_1_w)+pos+1, 1);
+                B.add_term((matrix_1_h*matrix_1_w)+(pos*matrix_2_w)+y_j+1,1);
+                C.add_term((matrix_1_h*matrix_1_w)+(matrix_2_h*matrix_2_w)+((y_i*output_w)+y_j)*(matrix_1_w)+pos+1, 1);
+                if(pos!=0){
+                    C.add_term((matrix_1_h*matrix_1_w)+(matrix_2_h*matrix_2_w)+((y_i*output_w)+y_j)*(matrix_1_w)+pos,temp_minus_one);
+                }
+                cs.add_constraint(r1cs_constraint<FieldT>(A, B, C));
+            }
+            // constraint for one sum
+            // linear_combination<FieldT> A, B, C;
+            // B.add_term(0,1);
+            // // A terms of sum
+            // for(size_t pos=0; pos < matrix_1_w; pos++){
+            //     A.add_term((matrix_1_h*matrix_1_w)+(matrix_2_h*matrix_2_w)+((y_i*output_w)+y_j)*(matrix_1_w+1)+pos+1, 1);
+            // }
+            // C.add_term((matrix_1_h*matrix_1_w)+(matrix_2_h*matrix_2_w)+((y_i*output_w)+y_j)*(matrix_1_w+1)+matrix_1_w+1, 1);
+            // cs.add_constraint(r1cs_constraint<FieldT>(A, B, C));
+        }
+    }
+
+    libff::leave_block("set constraints");
+
+    /* split variable assignment */
+    r1cs_primary_input<FieldT> primary_input(full_variable_assignment.begin(), full_variable_assignment.begin() + cs.primary_input_size);
+    r1cs_primary_input<FieldT> auxiliary_input(full_variable_assignment.begin() + cs.primary_input_size, full_variable_assignment.end());
+
+    /* sanity checks */
+    std::cout<<"primary_input_size: "<<cs.primary_input_size<<std::endl;
+    std::cout<<"full_variable_assignment.size(): "<<full_variable_assignment.size()<<std::endl;
+    std::cout<<"Circuit parameters::  #constraints == "<<cs.num_constraints() << ";    #variables ==  "<<cs.num_variables()  <<std::endl;
+    assert(cs.num_variables() == full_variable_assignment.size());
+    assert(cs.num_variables() >= cs.primary_input_size);
+    assert(cs.num_inputs() == cs.primary_input_size);
+    assert(cs.num_constraints() == num_constraints);
+    assert(cs.is_satisfied(primary_input, auxiliary_input));
+
+    libff::leave_block("Call to generate_r1cs_example_with_matrix");
+
+    return r1cs_example<FieldT>(std::move(cs), std::move(primary_input), std::move(auxiliary_input));
+}
+
 
 
 

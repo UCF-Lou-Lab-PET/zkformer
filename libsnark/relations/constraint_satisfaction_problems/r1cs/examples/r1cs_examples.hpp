@@ -113,6 +113,12 @@ r1cs_example<FieldT> generate_r1cs_example_with_matrix_opt(const size_t matrix_1
 				                                        const size_t matrix_2_h,
                                                         const size_t matrix_2_w);
 
+template<typename FieldT>
+r1cs_example<FieldT> generate_r1cs_example_with_matrix_opt_5(const size_t matrix_1_h,
+                                                        const size_t matrix_1_w,
+				                                        const size_t matrix_2_h,
+                                                        const size_t matrix_2_w);
+
 
 } // libsnark
 
